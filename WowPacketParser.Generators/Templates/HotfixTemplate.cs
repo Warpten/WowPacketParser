@@ -30,11 +30,14 @@ namespace WowPacketParser.Generators.Templates
         public readonly HotfixProperty[] Properties = [.. properties];
     }
 
-    internal class HotfixProperty(string name, Type type, Enumeration? addedInVersion, Enumeration? removedInVersion)
+    internal class HotfixProperty(string name, ITypeSymbol type, Enumeration? addedInVersion, Enumeration? removedInVersion)
     {
         public readonly string Name = name;
-        public readonly Type Type = type;
+        public readonly Type Type = new (type.IsArray ? type.ElementType : type);
         public readonly Enumeration? AddedInVersion = addedInVersion;
         public readonly Enumeration? RemovedInVersion = removedInVersion;
+
+        public readonly bool IsArray = type.IsArray;
+        public readonly int Arity = type.FindAttribute<ArraySizeAttribute>()?.FindNamedArgument(nameof(ArraySizeAttribute.Size))?.ToInteger() ?? 0;
     }
 }

@@ -1,0 +1,22 @@
+namespance {{ model.Namespace }}
+{
+{{~ for import in model.Imports ~}}
+    using {{ import }};
+{{~ end ~}}
+
+    public partial class {{ model.Name }}
+    {
+        public {{ model.Name }}(Packet packet)
+        {
+{{~ for property in model.Properties ~}}
+{{~ if property.IsArray ~}}
+            {{ property.Field.Name }} = new {{ property.Type.Name }}[{{ property.Arity }}];
+            for (var i = 0; i < {{ property.Arity }}; ++i)
+                {{ property.Field.Name }}[i] = packet.Read{{ property.Type.Name }}("{{ property.Property.Name }}", i);
+{{~ else ~}}
+            {{ property.Field.Name }} = packet.Read{{ property.Type.Name }}("{{ property.Property.Name }}");
+{{~ end ~}}
+{{~ end ~}}
+        }
+    }
+}

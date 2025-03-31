@@ -32,6 +32,7 @@ namespace WowPacketParser.Generators.Generators
 
             context.RegisterSourceOutput(hotfixTables, static (spc, maybeModel) => {
                 var (model, errorType) = maybeModel;
+                
                 if (errorType != null)
                 {
                     foreach (var location in errorType.Locations)
