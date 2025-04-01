@@ -1,15 +1,16 @@
-namespance {{ model.Namespace }}
+namespace {{ model.Namespace }}
 {
 {{~ for import in model.Imports ~}}
     using {{ import }};
 {{~ end ~}}
 
-    public partial class {{ model.Name }}
+    public partial {{ model.Kind }} {{ model.Name }}
     {
         public {{ model.Name }}(Packet packet)
         {
 {{~ for property in model.Properties ~}}
 {{~ if property.IsArray ~}}
+            // TODO: Eliminate array initialization if fixed size.
             {{ property.Field.Name }} = new {{ property.Type.Name }}[{{ property.Arity }}];
             for (var i = 0; i < {{ property.Arity }}; ++i)
                 {{ property.Field.Name }}[i] = packet.Read{{ property.Type.Name }}("{{ property.Property.Name }}", i);

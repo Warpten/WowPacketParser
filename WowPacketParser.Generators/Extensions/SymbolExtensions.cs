@@ -62,7 +62,7 @@ namespace WowPacketParser.Generators.Extensions
         /// <param name="symbol">This symbol.</param>
         /// <param name="predicate">A predicate that filters all attributes.</param>
         /// <returns><pre>null</pre> if said attribute was not found exactly once.</returns>
-        public static AttributeData FindAttribute(this ISymbol symbol, Func<AttributeData, bool> predicate)
+        public static AttributeData? FindAttribute(this ISymbol symbol, Func<AttributeData, bool> predicate)
             => symbol.GetAttributes().Where(predicate).SingleOrDefault();
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace WowPacketParser.Generators.Extensions
         /// <typeparam name="T">The type of the attribute to find.</typeparam>
         /// <param name="symbol">This symbol.</param>
         /// <returns>An enumerable over all attributes.</returns>
-        public static AttributeData FindAttribute<T>(this ISymbol symbol) where T : Attribute
+        public static AttributeData? FindAttribute<T>(this ISymbol symbol) where T : Attribute
             => FindAttribute(symbol, attributeData => attributeData.AttributeClass?.GetFullyQualifiedName() == typeof(T).FullName);
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace WowPacketParser.Generators.Extensions
         /// <typeparam name="T">The type of the attribute to find.</typeparam>
         /// <param name="symbol">This symbol.</param>
         /// <returns>An enumerable over all attributes.</returns>
-        public static IEnumerable<AttributeData> SelectAttributes<T>(this ITypeSymbol symbol) where T : Attribute
+        public static IEnumerable<AttributeData> SelectAttributes<T>(this ISymbol symbol) where T : Attribute
             => SelectAttributes(symbol, attributeData => attributeData.AttributeClass?.GetFullyQualifiedName() == typeof(T).FullName);
 
         /// <summary>
@@ -160,9 +160,25 @@ namespace WowPacketParser.Generators.Extensions
         public static bool IsSpecializationOf(this ITypeSymbol typeSymbol, ITypeSymbol baseSymbol)
             => baseSymbol.IsAssignableFrom(typeSymbol.OriginalDefinition);
 
-        public static bool IsSpecializationOf<T>(this ITypeSymbol typeSymbol)
+        public static ITypeSymbol? GetElementType(this ITypeSymbol typeSymbol)
         {
-            return false;
+            if (typeSymbol is IArrayTypeSymbol arrayTypeSymbol)
+                return arrayTypeSymbol.ElementType;
+
+            switch (typeSymbol.SpecialType)
+            {
+                case SpecialType.System_Collections_Generic_ICollection_T:
+                case SpecialType.System_Collections_Generic_IReadOnlyCollection_T:
+                case SpecialType.System_Collections_Generic_IList_T:
+                case SpecialType.System_Collections_Generic_IReadOnlyList_T:
+                case SpecialType.System_Collections_Generic_IEnumerable_T:
+                case SpecialType.System_Collections_Generic_IEnumerator_T:
+                    if (typeSymbol is INamedTypeSymbol namedTypeSymbol)
+                        return namedTypeSymbol.TypeArguments[0];
+                    break;
+            }
+
+            return null;
         }
     }
 }

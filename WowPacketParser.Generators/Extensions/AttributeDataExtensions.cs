@@ -5,16 +5,23 @@ namespace WowPacketParser.Generators.Extensions
     internal static class AttributeDataExtensions
     {
         /// <summary>
-        /// Finds a named argument within attribute data.
+        /// Finds an argument within the attribute data.
         /// </summary>
-        /// <param name="data"></param>
-        /// <param name="attributeName">The name of the argument to find.</param>
+        /// <param name="data">The attribute data to search into.</param>
+        /// <param name="argumentName">The name of the argument to find. If null, named arguments will not be traversed.</param>
+        /// <param name="argumentIndex">The index of the argument to find. If -1, constructor arguments will not be traversed.</param>
         /// <returns></returns>
-        public static TypedConstant? FindNamedArgument(this AttributeData data, string attributeName)
+        public static TypedConstant? FindArgument(this AttributeData data, string? argumentName = null, int argumentIndex = -1)
         {
-            foreach (var namedArgument in data.NamedArguments)
-                if (namedArgument.Key == attributeName)
-                    return namedArgument.Value;
+            if (argumentName != null)
+            {
+                foreach (var namedArgument in data.NamedArguments)
+                    if (namedArgument.Key == argumentName)
+                        return namedArgument.Value;
+            }
+
+            if (argumentIndex >= 0 && data.ConstructorArguments.Length > argumentIndex)
+                return data.ConstructorArguments[argumentIndex];
 
             return null;
         }

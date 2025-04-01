@@ -4,6 +4,7 @@ using Scriban;
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using Scriban.Syntax;
 
 namespace WowPacketParser.Generators.Templates
 {
@@ -17,7 +18,7 @@ namespace WowPacketParser.Generators.Templates
 
         public string ToPath(string templateName)
             => templateName[0] == '$'
-                ? $"hvoss.Generators.Templates.Resources.{templateName}.sbncs"
+                ? $"WowPacketParser.Generators.Templates.Resources.{templateName.Slice(1)}.sbncs"
                 : templateName + ".sbncs";
 
         public string GetPath(TemplateContext context, SourceSpan callerSpan, string templateName)

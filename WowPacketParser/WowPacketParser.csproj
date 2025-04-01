@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
     <Import Project="../default.props" />
 
     <PropertyGroup>
@@ -24,6 +24,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\WowPacketParser.Attributes\WowPacketParser.Shared.csproj" />
         <ProjectReference Include="..\WowPacketParser.Proto\WowPacketParser.Proto.csproj" />
     </ItemGroup>
 </Project>

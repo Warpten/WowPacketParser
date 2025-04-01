@@ -2,6 +2,7 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using WowPacketParser.Generators.Extensions;
 using WowPacketParser.Generators.Templates;
@@ -12,6 +13,7 @@ namespace WowPacketParser.Generators.Generators
 {
     using BackedProperty = (IPropertySymbol Property, IFieldSymbol Field);
 
+    [Generator]
     public class HotfixGenerator : IIncrementalGenerator
     {
         private static readonly DiagnosticDescriptor NoEligibleConstructor = new(
@@ -82,20 +84,20 @@ namespace WowPacketParser.Generators.Generators
         {
             var properties = members.Select(static backedProperty =>
             {
-                var (field, property) = backedProperty;
+                var (property, field) = backedProperty;
 
                 // Collect metadata about the property
                 var addedInVersion = property.FindAttribute<AddedInVersionAttribute>()
-                    ?.FindNamedArgument(nameof(AddedInVersionAttribute.Version))
+                    ?.FindArgument(nameof(AddedInVersionAttribute.Version))
                     ?.ToEnumeration();
                 var removedInVersion = property.FindAttribute<RemovedInVersionAttribute>()
-                    ?.FindNamedArgument(nameof(RemovedInVersionAttribute.Version))
+                    ?.FindArgument(nameof(RemovedInVersionAttribute.Version))
                     ?.ToEnumeration();
 
-                return new HotfixProperty(property.Name, new Type(property.Type), addedInVersion, removedInVersion);
+                return new HotfixProperty(property, field, property.Type, addedInVersion, removedInVersion);
             });
 
-            return new (new(type.GetName(false), type.GetNamespace(), properties), null);
+            return new (new(type, properties), null);
         }
     }
 

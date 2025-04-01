@@ -1,4 +1,6 @@
-﻿namespace WowPacketParser.Shared.Attributes
+﻿using System.Resources;
+
+namespace WowPacketParser.Shared.Attributes
 {
     /// <summary>
     /// Marks the associated type as a hotfix table, as in a type that can parse hotfix information from a packet.
@@ -11,7 +13,7 @@
     /// 
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-    public class HotfixTableAttribute<T> : Attribute where T : Enum
+    public class HotfixTableAttribute<T> : Attribute // where T : Enum
     {
         /// <summary>
         /// The hash of the associated DB2.

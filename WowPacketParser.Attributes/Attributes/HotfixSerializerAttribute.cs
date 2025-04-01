@@ -4,9 +4,9 @@
     public class HotfixSerializerAttribute : Attribute
     {
         /// <summary>
-        /// The path (on disk, relative to this file) to a template for the body of this serializer.
+        /// The name of the resource. Such a resource lives within the target assembly.
         /// </summary>
-        public required string Template { get; set; }
+        public string Resource { get; set; } = null;
     }
 }
 

@@ -1,11 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+
+using Microsoft.CodeAnalysis;
+
+using WowPacketParser.Generators.Extensions;
 using WowPacketParser.Generators.MetaModel;
+using WowPacketParser.Shared.Attributes;
+
 using Type = WowPacketParser.Generators.MetaModel.Type;
 
 namespace WowPacketParser.Generators.Templates
 {
-    internal class HotfixTemplate(IEnumerable<HotfixType> types) : AbstractTemplate<HotfixTemplate>("")
+    internal class HotfixTemplate(IEnumerable<HotfixType> types) : AbstractTemplate<HotfixTemplate>("HotfixExtensions")
     {
         public string[] Imports = [.. types.SelectMany<HotfixType, string>(static type => [
             // Namespace of the type.
@@ -23,21 +31,46 @@ namespace WowPacketParser.Generators.Templates
         public HotfixType[] Types = [.. types];
     }
 
-    internal class HotfixType(string name, string @namespace, IEnumerable<HotfixProperty> properties)
+    internal class HotfixType(ITypeSymbol type, IEnumerable<HotfixProperty> properties)
     {
-        public readonly string Namespace = @namespace;
-        public readonly string Name = name;
+        public readonly string Namespace = type.GetNamespace();
+        public readonly string Name = type.GetName(false);
+        public readonly string Kind = type.TypeKind switch
+        {
+            TypeKind.Class => "class",
+            TypeKind.Struct => "struct",
+            _ => throw new ArgumentOutOfRangeException(nameof(type.TypeKind))
+        };
         public readonly HotfixProperty[] Properties = [.. properties];
     }
 
-    internal class HotfixProperty(string name, ITypeSymbol type, Enumeration? addedInVersion, Enumeration? removedInVersion)
+    internal class HotfixProperty(IPropertySymbol property, IFieldSymbol field, ITypeSymbol type, Enumeration? addedInVersion, Enumeration? removedInVersion)
     {
-        public readonly string Name = name;
-        public readonly Type Type = new (type.IsArray ? type.ElementType : type);
+        /// <summary>
+        /// Name of the property.
+        /// </summary>
+        public readonly Property Property = new(property);
+
+        /// <summary>
+        /// Name of the backing field.
+        /// </summary>
+        public readonly Field Field = new(field);
+
+        /// <summary>
+        /// Type of the property.
+        /// </summary>
+        public readonly Type Type = new (type);
+        
         public readonly Enumeration? AddedInVersion = addedInVersion;
+        
         public readonly Enumeration? RemovedInVersion = removedInVersion;
 
-        public readonly bool IsArray = type.IsArray;
-        public readonly int Arity = type.FindAttribute<ArraySizeAttribute>()?.FindNamedArgument(nameof(ArraySizeAttribute.Size))?.ToInteger() ?? 0;
+        public readonly bool IsArray = type is IArrayTypeSymbol;
+    }
+
+    internal class ArrayProperty(IPropertySymbol property, IFieldSymbol field, IArrayTypeSymbol type, Enumeration? addedInVersion, Enumeration? removedInVersion)
+        : HotfixProperty(property, field, type, addedInVersion, removedInVersion)
+    {
+        public readonly int Arity = type.GetArity();
     }
 }
