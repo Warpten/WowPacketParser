@@ -1,7 +1,11 @@
 <Project>
-    <PropertyGroup>
-        <OutputPath>bin/$(Configuration)/</OutputPath>
+    <PropertyGroup Condition="'$(TargetFramework)' == '' And '$(TargetFrameworks)' == ''">
+        <!-- Only set a default target framework if none is set (either as a single value or multiple values, see dotnet/msbuild#7856) -->
         <TargetFramework>net9.0</TargetFramework>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <OutputPath>bin/$(TargetFramework)/$(Configuration)/</OutputPath>
         <LangVersion>latest</LangVersion>
 		
         <Company>TrinityCore</Company>
@@ -14,6 +18,6 @@
 
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
     </PropertyGroup>
 </Project>

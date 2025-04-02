@@ -1,9 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-	<Import Project="../default.props" />
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
-		
+	</PropertyGroup>
+
+	<Import Project="../default.props" />
+
+	<PropertyGroup>
 		<ImplicitUsings>disable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 
@@ -21,12 +24,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<!-- Private asset so that this is not seen as a dependency. -->
-		<ProjectReference Include="..\WowPacketParser.Attributes\WowPacketParser.Shared.csproj" PrivateAssets="all" />
-
 		<!-- Pack the generator dll in the analyzers/dotnet/cs path -->
 		<None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 		<None Include="$(PkgScriban)\lib\$(TargetFramework)\*.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+
+		<ProjectReference Include="..\WowPacketParser.Attributes\WowPacketParser.Shared.csproj" PrivateAssets="all" />
 
 		<!-- Map templates as embedded resources. -->
 		<EmbeddedResource Include="Templates\Resources\*.sbncs" />
