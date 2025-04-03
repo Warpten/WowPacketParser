@@ -1,6 +1,7 @@
 using System;
 using WowPacketParser.Enums;
 using WowPacketParser.Misc;
+using WowPacketParser.Shared.Enums;
 using WowPacketParser.Store;
 using WowPacketParser.Store.Objects;
 

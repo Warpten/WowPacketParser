@@ -1,5 +1,6 @@
 ﻿using WowPacketParser.Enums;
 using WowPacketParser.Hotfix;
+using WowPacketParser.Shared.Enums;
 
 namespace WowPacketParserModule.V5_4_0_17359.Hotfix
 {

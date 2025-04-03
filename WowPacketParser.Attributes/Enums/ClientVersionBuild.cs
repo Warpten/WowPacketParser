@@ -1,4 +1,4 @@
-﻿namespace WowPacketParser.Enums
+﻿namespace WowPacketParser.Shared.Enums
 {
     public enum ClientVersionBuild
     {

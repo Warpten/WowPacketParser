@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
+
 using WowPacketParser.Loading;
 using WowPacketParser.Misc;
 using WowPacketParser.Parsing.Parsers;
@@ -86,7 +87,7 @@ namespace WowPacketParser
             foreach (var file in files)
             {
                 SessionHandler.ZStreams.Clear();
-                if (Settings.ClientBuild != Enums.ClientVersionBuild.Zero)
+                if (Settings.ClientBuild != Shared.Enums.ClientVersionBuild.Zero)
                     ClientVersion.SetVersion(Settings.ClientBuild);
 
                 ClientLocale.SetLocale(Settings.ClientLocale.ToString());

@@ -9,6 +9,7 @@ using WowPacketParser.Enums.Version;
 using WowPacketParser.Enums.Version.V6_0_3_19103;
 using WowPacketParser.Misc;
 using WowPacketParser.Parsing;
+using WowPacketParser.Shared.Enums;
 
 namespace WowPacketParser.Tests
 {

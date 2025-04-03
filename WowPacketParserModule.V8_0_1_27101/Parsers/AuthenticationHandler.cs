@@ -2,6 +2,7 @@
 using WowPacketParser.Enums;
 using WowPacketParser.Misc;
 using WowPacketParser.Parsing;
+using WowPacketParser.Shared.Enums;
 
 namespace WowPacketParserModule.V8_0_1_27101.Parsers
 {

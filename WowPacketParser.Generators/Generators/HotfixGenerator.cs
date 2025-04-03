@@ -33,7 +33,7 @@ namespace WowPacketParser.Generators.Generators
             ).Where(x => x is not null);
 
             context.RegisterSourceOutput(hotfixTables, static (spc, maybeModel) => {
-                var (model, errorType) = maybeModel;
+                var (model, errorType) = maybeModel!;
                 
                 if (errorType != null)
                 {
@@ -43,14 +43,14 @@ namespace WowPacketParser.Generators.Generators
                 else
                 {
                     spc.AddSource($"{model!.Name}.g.cs", model.Render());
-                }   
+                }
             });
         }
 
         private static Either<HotfixType, ITypeSymbol>? Transform(TypeDeclarationSyntax node, SemanticModel semanticModel, CancellationToken cts)
         {
             // Bail if type symbol not found.
-            if (semanticModel.GetDeclaredSymbol(node) is not ITypeSymbol typeSymbol)
+            if (semanticModel.GetDeclaredSymbol(node, cts) is not ITypeSymbol typeSymbol)
                 return null;
 
             // Only process types annotated with [HotfixTable<T>(Hash = ...)].
@@ -63,7 +63,8 @@ namespace WowPacketParser.Generators.Generators
             // Find all partial constructors.
             // We don't filter types that don't have exactly one partial constructor here
             // because we want to emit diagnostics for those types.
-            var candidateConstructor = typeSymbol.GetMembers().Where(x => x.Kind == SymbolKind.Method)
+            var candidateConstructor = typeSymbol.GetMembers()
+                .Where(x => x.Kind == SymbolKind.Method)
                 .Cast<IMethodSymbol>()
                 .Where(x => x.MethodKind == MethodKind.Constructor && x.IsPartialDefinition)
                 .SingleOrDefault();
@@ -72,7 +73,8 @@ namespace WowPacketParser.Generators.Generators
                 return new (null, typeSymbol);
 
             // Collect all auto-generated properties, these are of interest to us.
-            var properties = typeSymbol.GetMembers().Where(x => x.Kind == SymbolKind.Property)
+            var properties = typeSymbol.GetMembers()
+                .Where(x => x.Kind == SymbolKind.Property)
                 .Cast<IPropertySymbol>()
                 .Select(x => (Property: x, Field: x.GetBackingField()))
                 .Where(tpl => tpl.Field != null);

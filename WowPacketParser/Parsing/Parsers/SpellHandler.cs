@@ -8,6 +8,7 @@ using WowPacketParser.Enums.Version;
 using WowPacketParser.Misc;
 using WowPacketParser.PacketStructures;
 using WowPacketParser.Proto;
+using WowPacketParser.Shared.Enums;
 using WowPacketParser.Store;
 using WowPacketParser.Store.Objects;
 using CoreParsers = WowPacketParser.Parsing.Parsers;

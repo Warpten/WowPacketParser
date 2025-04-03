@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using WowPacketParser.Misc;
 using WowPacketParser.Parsing;
 using WowPacketParser.Parsing.Parsers;
+using WowPacketParser.Shared.Enums;
 
 namespace WowPacketParser.Enums.Version
 {

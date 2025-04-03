@@ -1,4 +1,6 @@
-﻿namespace WowPacketParser.Shared.Attributes
+﻿using WowPacketParser.Shared.Enums;
+
+namespace WowPacketParser.Shared.Attributes
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public class RemovedInVersionAttribute : Attribute

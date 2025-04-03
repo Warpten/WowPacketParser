@@ -1,4 +1,5 @@
 using WowPacketParser.Parsing;
+using WowPacketParser.Shared.Enums;
 
 namespace WowPacketParser.Enums
 {

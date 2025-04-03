@@ -146,10 +146,11 @@ namespace WowPacketParser.Generators.Extensions
         /// <param name="property">The property for which the backing field should be retrieved.</param>
         /// <returns>The backing field that corresponds to this property, or <pre>null</pre> if no such field could be found.</returns>
         public static IFieldSymbol GetBackingField(this IPropertySymbol property)
-            => property.ContainingType.GetMembers().Where(x => x.Kind == SymbolKind.Field)
+            => property.ContainingType.GetMembers()
+                .Where(x => x.Kind == SymbolKind.Field)
                 .Cast<IFieldSymbol>()
                 .Where(x => SymbolEqualityComparer.Default.Equals(x.AssociatedSymbol, property) && x.IsImplicitlyDeclared)
-                .FirstOrDefault();
+                .SingleOrDefault();
 
         /// <summary>
         /// Checks that this type is a specialization of the given type.

@@ -2,6 +2,7 @@
 using System.Configuration;
 using WowPacketParser.Enums;
 using WowPacketParser.Misc;
+using WowPacketParser.Shared.Enums;
 
 namespace WowPacketParser.Hotfix
 {

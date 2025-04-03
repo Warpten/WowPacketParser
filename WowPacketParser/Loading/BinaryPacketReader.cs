@@ -4,6 +4,7 @@ using System.Net;
 using System.Text;
 using WowPacketParser.Enums;
 using WowPacketParser.Misc;
+using WowPacketParser.Shared.Enums;
 using WowPacketParser.Store;
 
 namespace WowPacketParser.Loading

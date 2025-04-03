@@ -13,26 +13,19 @@ using Type = WowPacketParser.Generators.MetaModel.Type;
 
 namespace WowPacketParser.Generators.Templates
 {
-    internal class HotfixTemplate(IEnumerable<HotfixType> types) : AbstractTemplate<HotfixTemplate>("HotfixExtensions")
+    internal class HotfixType(ITypeSymbol type, IEnumerable<HotfixProperty> properties) : AbstractTemplate<HotfixType>("HotfixExtensions")
     {
-        public string[] Imports = [.. types.SelectMany<HotfixType, string>(static type => [
-            // Namespace of the type.
-            type.Namespace,
-            // For each property...
-            .. type.Properties.SelectMany<HotfixProperty, string>(static property => [
+        public string[] Imports = [
+            type.ContainingNamespace.GetFullyQualifiedName(),
+            .. properties.SelectMany<HotfixProperty, string>(static property => [
                 // ... Namespace of the property type
                 property.Type.Namespace,
                 // ... as well as the client build criterions
                 property.AddedInVersion?.Type.Namespace ?? string.Empty,
                 property.RemovedInVersion?.Type.Namespace ?? string.Empty
-            ])
-        ]).Where(x => x != string.Empty).Distinct().OrderBy(x => x)];
+            ]).Where(x => x != string.Empty).Distinct().OrderBy(x => x)
+        ];
 
-        public HotfixType[] Types = [.. types];
-    }
-
-    internal class HotfixType(ITypeSymbol type, IEnumerable<HotfixProperty> properties)
-    {
         public readonly string Namespace = type.GetNamespace();
         public readonly string Name = type.GetName(false);
         public readonly string Kind = type.TypeKind switch
@@ -41,6 +34,7 @@ namespace WowPacketParser.Generators.Templates
             TypeKind.Struct => "struct",
             _ => throw new ArgumentOutOfRangeException(nameof(type.TypeKind))
         };
+
         public readonly HotfixProperty[] Properties = [.. properties];
     }
 

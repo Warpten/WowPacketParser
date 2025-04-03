@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace WowPacketParser.Enums
+namespace WowPacketParser.Shared.Enums
 {
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum DB2Hash : uint

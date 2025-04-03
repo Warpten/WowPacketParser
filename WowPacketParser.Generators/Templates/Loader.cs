@@ -17,9 +17,7 @@ namespace WowPacketParser.Generators.Templates
             => typeof(Loader).Assembly.GetManifestResourceStream(templateName);
 
         public string ToPath(string templateName)
-            => templateName[0] == '$'
-                ? $"WowPacketParser.Generators.Templates.Resources.{templateName.Slice(1)}.sbncs"
-                : templateName + ".sbncs";
+            => $"{typeof(Loader).Assembly.FullName}.Templates.Resources.{templateName}.sbncs";
 
         public string GetPath(TemplateContext context, SourceSpan callerSpan, string templateName)
             => ToPath(templateName);

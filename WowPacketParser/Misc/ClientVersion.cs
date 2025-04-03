@@ -8,6 +8,7 @@ using WowPacketParser.Enums;
 using WowPacketParser.Enums.Version;
 using WowPacketParser.Hotfix;
 using WowPacketParser.Parsing;
+using WowPacketParser.Shared.Enums;
 
 namespace WowPacketParser.Misc
 {

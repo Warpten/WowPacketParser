@@ -6,6 +6,8 @@ using WowPacketParser.Enums;
 using WowPacketParser.Misc;
 using WowPacketParser.Parsing;
 using WowPacketParser.Proto;
+using WowPacketParser.Shared.Enums;
+
 using WowPacketParserModule.V7_0_3_22248.Enums;
 using CoreParsers = WowPacketParser.Parsing.Parsers;
 using MovementFlag = WowPacketParser.Enums.v4.MovementFlag;

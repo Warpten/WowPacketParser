@@ -7,6 +7,7 @@ using WowPacketParser.PacketStructures;
 using WowPacketParser.Parsing;
 using WowPacketParser.Parsing.Parsers;
 using WowPacketParser.Proto;
+using WowPacketParser.Shared.Enums;
 using WowPacketParser.Store;
 using WowPacketParser.Store.Objects;
 using WowPacketParser.Store.Objects.UpdateFields;

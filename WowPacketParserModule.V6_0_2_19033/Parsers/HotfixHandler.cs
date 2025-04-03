@@ -6,6 +6,7 @@ using WowPacketParser.Hotfix;
 using WowPacketParser.Misc;
 using WowPacketParser.Parsing;
 using WowPacketParser.Proto;
+using WowPacketParser.Shared.Enums;
 
 namespace WowPacketParserModule.V6_0_2_19033.Parsers
 {

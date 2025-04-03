@@ -2,6 +2,8 @@ using WowPacketParser.Enums;
 using WowPacketParser.Misc;
 using WowPacketParser.Parsing;
 using WowPacketParser.Proto;
+using WowPacketParser.Shared.Enums;
+
 using SpellParsers = WowPacketParserModule.V6_0_2_19033.Parsers.SpellHandler;
 
 namespace WowPacketParserModule.V6_0_2_19033.Parsers

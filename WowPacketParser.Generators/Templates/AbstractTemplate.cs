@@ -30,9 +30,7 @@ namespace WowPacketParser.Generators.Templates
                 TemplateLoader = Loader.Instance
             };
 
-            // Add language extensions to the global state.
-            _globalState = new ScriptObject();
-            _globalState.Import(typeof(LanguageExtensions), ScriptMemberImportFlags.Method, null, member => member.Name);
+            _globalState = [];
 
         }
 
@@ -40,9 +38,16 @@ namespace WowPacketParser.Generators.Templates
 
         public string Render()
         {
-            _globalState.Add("model", this);
-            _context.PushGlobal(_globalState);
-            return _template.Render(_context);
+            try
+            {
+                _globalState.Add("model", this);
+                _context.PushGlobal(_globalState);
+                return _template.Render(_context);
+            }
+            finally
+            {
+                _context.PopGlobal();
+            }
         }
 
         private static bool IsEligible(FieldInfo fieldInfo) => fieldInfo.IsPublic && fieldInfo.IsInitOnly && !fieldInfo.IsStatic;

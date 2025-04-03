@@ -6,6 +6,7 @@ using WowPacketParser.Misc;
 using WowPacketParser.PacketStructures;
 using WowPacketParser.Parsing;
 using WowPacketParser.Proto;
+using WowPacketParser.Shared.Enums;
 using WowPacketParser.SQL.Builders;
 using WowPacketParser.Store;
 using WowPacketParser.Store.Objects;

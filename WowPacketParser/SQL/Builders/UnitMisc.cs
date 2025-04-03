@@ -7,6 +7,7 @@ using System.Text;
 using WowPacketParser.Enums;
 using WowPacketParser.Hotfix;
 using WowPacketParser.Misc;
+using WowPacketParser.Shared.Enums;
 using WowPacketParser.Store;
 using WowPacketParser.Store.Objects;
 
