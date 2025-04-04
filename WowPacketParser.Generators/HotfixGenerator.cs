@@ -1,15 +1,18 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+
 using WowPacketParser.Generators.Extensions;
 using WowPacketParser.Generators.Templates;
 using WowPacketParser.Shared.Attributes;
+
 using Type = WowPacketParser.Generators.MetaModel.Type;
 
-namespace WowPacketParser.Generators.Generators
+namespace WowPacketParser.Generators
 {
     using BackedProperty = (IPropertySymbol Property, IFieldSymbol Field);
 
@@ -69,9 +72,6 @@ namespace WowPacketParser.Generators.Generators
                 .Where(x => x.MethodKind == MethodKind.Constructor && x.IsPartialDefinition)
                 .SingleOrDefault();
 
-            if (candidateConstructor == null)
-                return new (null, typeSymbol);
-
             // Collect all auto-generated properties, these are of interest to us.
             var properties = typeSymbol.GetMembers()
                 .Where(x => x.Kind == SymbolKind.Property)
@@ -82,8 +82,11 @@ namespace WowPacketParser.Generators.Generators
             return MakeModel(typeSymbol, candidateConstructor, properties);
         }
         
-        internal static Either<HotfixType, ITypeSymbol> MakeModel(ITypeSymbol type, IMethodSymbol constructor, IEnumerable<BackedProperty> members)
+        internal static Either<HotfixType, ITypeSymbol> MakeModel(ITypeSymbol type, IMethodSymbol? constructor, IEnumerable<BackedProperty> members)
         {
+            if (constructor == null)
+                return new(null, type);
+
             var properties = members.Select(static backedProperty =>
             {
                 var (property, field) = backedProperty;
@@ -99,7 +102,7 @@ namespace WowPacketParser.Generators.Generators
                 return new HotfixProperty(property, field, property.Type, addedInVersion, removedInVersion);
             });
 
-            return new (new(type, properties), null);
+            return new (new(type, properties, constructor), null);
         }
     }
 

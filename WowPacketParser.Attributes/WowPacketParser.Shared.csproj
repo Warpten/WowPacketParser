@@ -11,8 +11,9 @@
 		<Nullable>disable</Nullable>
 	</PropertyGroup>
 
+	<!-- Compiler hacks -->
 	<ItemGroup Condition="'$(TargetFrameworkVersion)' == 'netstandard2.0'">
-		<Compile Include="EvilHacks/*.cs" />
+		<Compile Include="CompilerServices/*.cs" />
 	</ItemGroup>
 	
 	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">

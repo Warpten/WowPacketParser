@@ -13,7 +13,8 @@ using Type = WowPacketParser.Generators.MetaModel.Type;
 
 namespace WowPacketParser.Generators.Templates
 {
-    internal class HotfixType(ITypeSymbol type, IEnumerable<HotfixProperty> properties) : AbstractTemplate<HotfixType>("HotfixExtensions")
+    internal class HotfixType(ITypeSymbol type, IEnumerable<HotfixProperty> properties, IMethodSymbol constructor)
+        : AbstractTemplate<HotfixType>("HotfixExtensions")
     {
         public string[] Imports = [
             type.ContainingNamespace.GetFullyQualifiedName(),
@@ -34,6 +35,7 @@ namespace WowPacketParser.Generators.Templates
             TypeKind.Struct => "struct",
             _ => throw new ArgumentOutOfRangeException(nameof(type.TypeKind))
         };
+        public readonly Method Constructor = new(constructor);
 
         public readonly HotfixProperty[] Properties = [.. properties];
     }

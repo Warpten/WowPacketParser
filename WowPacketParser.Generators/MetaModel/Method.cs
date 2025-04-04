@@ -9,6 +9,7 @@ namespace WowPacketParser.Generators.MetaModel
         public readonly Type ReturnType = new(method.ReturnType);
         public readonly string Name = method.Name;
         public readonly Parameter[] Parameters = [.. method.Parameters.Select(p => new Parameter(p))];
+        public readonly MethodKind Kind = method.MethodKind;
 
         public readonly Type? ReceiverType = method.ReceiverType == null ? null : new(method.ReceiverType);
 
