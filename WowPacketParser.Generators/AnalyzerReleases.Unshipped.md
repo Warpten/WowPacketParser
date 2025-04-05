@@ -6,3 +6,4 @@
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
 HG001 | WowPacketParser | Error | HotfixGenerator
+HG002 | WowPacketParser | Info | HotfixGenerator
