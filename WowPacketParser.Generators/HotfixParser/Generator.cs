@@ -1,16 +1,17 @@
 ﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata;
 using System.Threading;
 
 using WowPacketParser.Generators.Actions;
+using WowPacketParser.Generators.Definitions;
 using WowPacketParser.Generators.Extensions;
 using WowPacketParser.Shared.Attributes;
-
-using Type = WowPacketParser.Generators.MetaModel.Type;
 
 namespace WowPacketParser.Generators.HotfixParser
 {
@@ -37,7 +38,31 @@ namespace WowPacketParser.Generators.HotfixParser
 
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
-            // Find all types annotated with [HotfixTable].
+            var definitions = context.MetadataReferencesProvider.SelectMany(static (metadataReference, cts) =>
+            {
+                if (metadataReference is PortableExecutableReference peReference
+                    && peReference.GetMetadata() is AssemblyMetadata metadata)
+                {
+                    return metadata.GetModules()
+                        .SelectMany(module =>
+                        {
+                            var metadataReader = module.GetMetadataReader();
+                            return metadataReader.ManifestResources
+                                .Select(metadataReader.GetManifestResource)
+                                .Where(resource => metadataReader.GetString(resource.Name).EndsWith(".dbd"))
+                                .Where(resource => resource.Implementation.Kind == HandleKind.AssemblyFile)
+                                .Select(resource =>
+                                {
+                                    var hashValue = metadataReader.GetAssemblyFile((AssemblyFileHandle) resource.Implementation).HashValue;
+                                    return metadataReader.GetBlobReader(hashValue);
+                                })
+                                .Select(ClientDatabaseDefinition.ParseBinary);
+                        });
+                }
+
+                return [];
+            });
+
             var hotfixTables = context.SyntaxProvider.CreateSyntaxProvider(
                 predicate: static (syntaxNode, _) => syntaxNode is TypeDeclarationSyntax,
                 transform: static (context, cts) => Transform((TypeDeclarationSyntax) context.Node, context.SemanticModel, cts)
