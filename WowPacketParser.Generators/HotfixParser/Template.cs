@@ -7,14 +7,15 @@ using Microsoft.CodeAnalysis;
 
 using WowPacketParser.Generators.Extensions;
 using WowPacketParser.Generators.MetaModel;
+using WowPacketParser.Generators.Templates;
 using WowPacketParser.Shared.Attributes;
 
 using Type = WowPacketParser.Generators.MetaModel.Type;
 
-namespace WowPacketParser.Generators.Templates
+namespace WowPacketParser.Generators.HotfixParser
 {
-    internal class HotfixType(ITypeSymbol type, IEnumerable<HotfixProperty> properties, IMethodSymbol constructor)
-        : AbstractTemplate<HotfixType>("HotfixExtensions")
+    internal class Template(ITypeSymbol type, IEnumerable<HotfixProperty> properties, IMethodSymbol constructor)
+        : AbstractTemplate<Template>("HotfixExtensions")
     {
         public string[] Imports = [
             type.ContainingNamespace.GetFullyQualifiedName(),

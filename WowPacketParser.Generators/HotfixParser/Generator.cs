@@ -6,18 +6,18 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 
+using WowPacketParser.Generators.Actions;
 using WowPacketParser.Generators.Extensions;
-using WowPacketParser.Generators.Templates;
 using WowPacketParser.Shared.Attributes;
 
 using Type = WowPacketParser.Generators.MetaModel.Type;
 
-namespace WowPacketParser.Generators
+namespace WowPacketParser.Generators.HotfixParser
 {
     using BackedProperty = (IPropertySymbol Property, IFieldSymbol Field);
 
     [Generator]
-    public class HotfixGenerator : IIncrementalGenerator
+    public class Generator : IIncrementalGenerator
     {
         private static readonly DiagnosticDescriptor NoEligibleConstructor = new(
             id: "HG001",
@@ -25,6 +25,14 @@ namespace WowPacketParser.Generators
             messageFormat: "The type '{0}' is annotated with [HotfixTable] but does not have exactly one partial constructor",
             category: "WowPacketParser",
             defaultSeverity: DiagnosticSeverity.Error,
+            isEnabledByDefault: true);
+
+        private static readonly DiagnosticDescriptor PropertyIgnored = new(
+            id: "HG002",
+            title: "Property can't be deserialized",
+            messageFormat: "This property can't be part of deserialization because the backing field could not be found",
+            category: "WowPacketParser",
+            defaultSeverity: DiagnosticSeverity.Info,
             isEnabledByDefault: true);
 
         public void Initialize(IncrementalGeneratorInitializationContext context)
@@ -35,34 +43,22 @@ namespace WowPacketParser.Generators
                 transform: static (context, cts) => Transform((TypeDeclarationSyntax) context.Node, context.SemanticModel, cts)
             ).Where(x => x is not null);
 
-            context.RegisterSourceOutput(hotfixTables, static (spc, maybeModel) => {
-                var (model, errorType) = maybeModel!;
-                
-                if (errorType != null)
-                {
-                    foreach (var location in errorType.Locations)
-                        spc.ReportDiagnostic(Diagnostic.Create(NoEligibleConstructor, location, errorType.Name));
-                }
-                else
-                {
-                    spc.AddSource($"{model!.Name}.g.cs", model.Render());
-                }
-            });
+            context.RegisterSourceOutput(hotfixTables, static (spc, action) => action.Run(spc));
         }
 
-        private static Either<HotfixType, ITypeSymbol>? Transform(TypeDeclarationSyntax node, SemanticModel semanticModel, CancellationToken cts)
+        private static IProductionAction Transform(TypeDeclarationSyntax node, SemanticModel semanticModel, CancellationToken cts)
         {
             // Bail if type symbol not found.
             if (semanticModel.GetDeclaredSymbol(node, cts) is not ITypeSymbol typeSymbol)
-                return null;
+                return EmptyProductionAction.Instance;
 
             // Only process types annotated with [HotfixTable<T>(Hash = ...)].
             var hotfixTable = typeSymbol.FindAttribute(
                 static attr => attr.AttributeClass?.OriginalDefinition.GetFullyQualifiedName() == typeof(HotfixTableAttribute<>).FullName);
 
             if (hotfixTable is null)
-                return null;
-       
+                return EmptyProductionAction.Instance;
+
             // Find all partial constructors.
             // We don't filter types that don't have exactly one partial constructor here
             // because we want to emit diagnostics for those types.
@@ -76,33 +72,42 @@ namespace WowPacketParser.Generators
             var properties = typeSymbol.GetMembers()
                 .Where(x => x.Kind == SymbolKind.Property)
                 .Cast<IPropertySymbol>()
-                .Select(x => (Property: x, Field: x.GetBackingField()))
-                .Where(tpl => tpl.Field != null);
+                .Select(x => (Property: x, Field: x.GetBackingField()));
 
             return MakeModel(typeSymbol, candidateConstructor, properties);
         }
         
-        internal static Either<HotfixType, ITypeSymbol> MakeModel(ITypeSymbol type, IMethodSymbol? constructor, IEnumerable<BackedProperty> members)
+        internal static IProductionAction MakeModel(ITypeSymbol type, IMethodSymbol? constructor, IEnumerable<BackedProperty> members)
         {
             if (constructor == null)
-                return new(null, type);
+                return DiagnosticProductionAction.Create(NoEligibleConstructor, type.Locations, type.Name);
 
-            var properties = members.Select(static backedProperty =>
-            {
-                var (property, field) = backedProperty;
+            var ineligibleProperties = members
+                .Where(member => member.Field is null)
+                .Select(static property => DiagnosticProductionAction.Create(PropertyIgnored, property.Property.Locations, property.Property.Name))
+                .ToProductionAction();
 
-                // Collect metadata about the property
-                var addedInVersion = property.FindAttribute<AddedInVersionAttribute>()
-                    ?.FindArgument(nameof(AddedInVersionAttribute.Version))
-                    ?.ToEnumeration();
-                var removedInVersion = property.FindAttribute<RemovedInVersionAttribute>()
-                    ?.FindArgument(nameof(RemovedInVersionAttribute.Version))
-                    ?.ToEnumeration();
+            var eligibleProperties = members
+                .Where(member => member.Field is not null)
+                .Select(static backedProperty =>
+                {
+                    var (property, field) = backedProperty;
 
-                return new HotfixProperty(property, field, property.Type, addedInVersion, removedInVersion);
-            });
+                    // Collect metadata about the property
+                    var addedInVersion = property.FindAttribute<AddedInVersionAttribute>()
+                        ?.FindArgument(nameof(AddedInVersionAttribute.Version))
+                        ?.ToEnumeration();
+                    var removedInVersion = property.FindAttribute<RemovedInVersionAttribute>()
+                        ?.FindArgument(nameof(RemovedInVersionAttribute.Version))
+                        ?.ToEnumeration();
 
-            return new (new(type, properties, constructor), null);
+                    return new HotfixProperty(property, field, property.Type, addedInVersion, removedInVersion);
+                });
+
+            var template = new Template(type, eligibleProperties, constructor);
+            var templateAction = new TemplateProductionAction<Template>($"{type.Name}.Parser.g.cs", template);
+
+            return ineligibleProperties.And(templateAction);
         }
     }
 
